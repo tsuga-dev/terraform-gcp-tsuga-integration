@@ -1,0 +1,94 @@
+receivers:
+%{ if enable_logs ~}
+  googlecloudpubsub:
+    project: ${project_id}
+    subscription: ${subscription}
+    encoding: googlecloudlogentry_encoding
+%{ endif ~}
+%{ if enable_metrics ~}
+  googlecloudmonitoring:
+    project_id: ${project_id}
+    collection_interval: ${collection_interval}
+    metrics_list:
+      - metric_descriptor_filter: metric.type = starts_with("compute.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("container.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("run.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("cloudfunctions.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("appengine.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("pubsub.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("bigquery.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("cloudsql.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("redis.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("storage.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("bigtable.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("firestore.googleapis.com/")
+      - metric_descriptor_filter: metric.type = starts_with("loadbalancing.googleapis.com/")
+      # Custom metrics
+      - metric_descriptor_filter: 'metric.type = starts_with("custom.googleapis.com/")'
+      # 3rd-party/exporter metrics
+      - metric_descriptor_filter: 'metric.type = starts_with("external.googleapis.com/")'
+      # Logs-based user metrics
+      - metric_descriptor_filter: 'metric.type = starts_with("logging.googleapis.com/user/")'
+%{ endif ~}
+processors:
+  batch:
+  resourcedetection:
+    detectors: [env, system, gcp]
+
+exporters:
+  otlphttp:
+    endpoint: ${tsuga_intake_url}
+    headers:
+      Authorization: Bearer $${env:TSUGA_API_KEY}
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+%{ if enable_logs ~}
+  googlecloudlogentry_encoding:
+%{ endif ~}
+
+service:
+  extensions: [health_check%{ if enable_logs ~}, googlecloudlogentry_encoding%{ endif ~}]
+  pipelines:
+%{ if enable_logs ~}
+    logs:
+      receivers: [googlecloudpubsub]
+      processors: [resourcedetection, batch]
+      exporters: [otlphttp]
+%{ endif ~}
+%{ if enable_metrics ~}
+    metrics:
+      receivers: [googlecloudmonitoring]
+      processors: [resourcedetection, batch]
+      exporters: [otlphttp]
+%{ endif ~}
+  telemetry:
+    logs:
+      initial_fields:
+        service: otel-self-telemetry
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                headers:
+                  Authorization: Bearer $${env:TSUGA_API_KEY}
+                endpoint: ${tsuga_intake_url}/v1/logs # Needs the full path here
+    metrics:
+      readers:
+        - periodic:
+            exporter:
+              otlp:
+                  protocol: http/protobuf
+                  headers:
+                    Authorization: Bearer $${env:TSUGA_API_KEY}
+                  endpoint: ${tsuga_intake_url}/v1/metrics # Needs the full path here
+    traces:
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                headers:
+                  Authorization: Bearer $${env:TSUGA_API_KEY}
+                endpoint: ${tsuga_intake_url}/v1/traces # Needs the full path here
