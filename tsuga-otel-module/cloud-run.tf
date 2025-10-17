@@ -6,8 +6,8 @@ resource "google_cloud_run_v2_service" "otel" {
     service_account = google_service_account.otel.email
 
     scaling {
-      min_instance_count = 1
-      max_instance_count = 10
+      min_instance_count = var.min_instances
+      max_instance_count = var.max_instances
     }
 
     containers {
@@ -32,7 +32,7 @@ resource "google_cloud_run_v2_service" "otel" {
           cpu    = "1"
           memory = "1Gi"
         }
-        cpu_idle = false
+        cpu_idle = var.cpu_always_allocated ? false : true
       }
 
       # Allow OTel health checks
