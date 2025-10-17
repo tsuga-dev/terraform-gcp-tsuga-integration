@@ -43,7 +43,7 @@ variable "enable_metrics" {
   default     = true
 }
 
-variable "min_instances" {Add a comment on lines R46 to R56Add diff commentMarkdown input:  edit mode selected.WritePreviewAdd a suggestionHeadingBoldItalicQuoteCodeLinkUnordered listNumbered listTask listMentionReferenceSaved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a reviewReturn to code
+variable "min_instances" {
   description = "Minimum number of Cloud Run instances to keep warm."
   type        = number
   default     = 1
