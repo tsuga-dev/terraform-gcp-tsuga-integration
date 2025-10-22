@@ -1,0 +1,88 @@
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:$${env:PORT}"
+%{ if enable_logs ~}
+  # Required since 0.132.0: enables decoding Cloud Logging entries from Pub/Sub.
+  googlecloudlogentryencoding: {}
+%{ endif ~}
+
+receivers:
+%{ if enable_logs ~}
+  googlecloudpubsub:
+    project: ${project_id}
+    subscription: ${subscription}
+    encoding: googlecloudlogentry
+%{ endif ~}
+%{ if enable_metrics ~}
+  googlecloudmonitoring:
+    project_id: ${project_id}
+    collection_interval: ${collection_interval}
+    metrics_list:
+      - metric_descriptor_filter: 'metric.type = starts_with("compute.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("container.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("run.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("cloudfunctions.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("appengine.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("pubsub.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("bigquery.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("cloudsql.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("redis.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("storage.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("bigtable.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("firestore.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("loadbalancing.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("custom.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("external.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("logging.googleapis.com/user/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("spanner.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("aiplatform.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("alloydb.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("composer.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("cloudtasks.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("cloudscheduler.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("filestore.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("networkservices.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("networksecurity.googleapis.com/")'
+%{ endif ~}
+
+processors:
+  resourcedetection:
+    detectors: [env, gcp]
+  batch:
+    timeout: 5s
+
+exporters:
+  otlphttp:
+    endpoint: ${tsuga_intake_url}
+    headers:
+      Authorization: Bearer $${env:TSUGA_API_KEY}
+    compression: gzip
+    timeout: 30s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 10s
+      max_elapsed_time: 10s
+    sending_queue:
+      enabled: true
+      num_consumers: 4
+      queue_size: 4096
+
+service:
+  extensions: [health_check%{ if enable_logs ~}, googlecloudlogentryencoding%{ endif ~}]
+  pipelines:
+%{ if enable_logs ~}
+    logs:
+      receivers: [googlecloudpubsub]
+      processors: [resourcedetection, batch]
+      exporters: [otlphttp]
+%{ endif ~}
+%{ if enable_metrics ~}
+    metrics:
+      receivers: [googlecloudmonitoring]
+      processors: [resourcedetection, batch]
+      exporters: [otlphttp]
+%{ endif ~}
+  telemetry:
+    logs:
+      level: debug
