@@ -20,6 +20,7 @@ receivers:
     metrics_list:
       - metric_descriptor_filter: 'metric.type = starts_with("compute.googleapis.com/")'
       - metric_descriptor_filter: 'metric.type = starts_with("container.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("autoscaler.googleapis.com/")'
       - metric_descriptor_filter: 'metric.type = starts_with("run.googleapis.com/")'
       - metric_descriptor_filter: 'metric.type = starts_with("cloudfunctions.googleapis.com/")'
       - metric_descriptor_filter: 'metric.type = starts_with("appengine.googleapis.com/")'
