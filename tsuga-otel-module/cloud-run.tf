@@ -12,7 +12,7 @@ resource "google_cloud_run_v2_service" "otel" {
     }
 
     containers {
-      image = "otel/opentelemetry-collector-contrib:0.132.0"
+      image = var.otel_collector_image
       args  = ["--config=file:/etc/otel/config.yaml"]
 
       env {
@@ -41,7 +41,7 @@ resource "google_cloud_run_v2_service" "otel" {
       liveness_probe {
         http_get {
           path = "/"
-          port = 8080
+          port = 13133
         }
         initial_delay_seconds = 30
         period_seconds        = 30
@@ -52,7 +52,7 @@ resource "google_cloud_run_v2_service" "otel" {
       startup_probe {
         http_get {
           path = "/"
-          port = 8080
+          port = 13133
         }
         initial_delay_seconds = 10
         period_seconds        = 5
