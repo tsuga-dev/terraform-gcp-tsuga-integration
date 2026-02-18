@@ -60,3 +60,9 @@ variable "cpu_always_allocated" {
   type        = bool
   default     = true
 }
+
+variable "otel_collector_image" {
+  description = "OTel Collector container image"
+  type        = string
+  default     = "otel/opentelemetry-collector-contrib:0.145.0"
+}

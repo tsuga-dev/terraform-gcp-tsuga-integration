@@ -1,6 +1,6 @@
 extensions:
   health_check:
-    endpoint: "0.0.0.0:$${env:PORT}"
+    endpoint: "0.0.0.0:13133"
 %{ if enable_logs ~}
   # Required since 0.132.0: enables decoding Cloud Logging entries from Pub/Sub.
   googlecloudlogentryencoding: {}
