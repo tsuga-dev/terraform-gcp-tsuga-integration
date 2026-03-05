@@ -61,6 +61,12 @@ variable "cpu_always_allocated" {
   default     = true
 }
 
+variable "otel_service_account_email" {
+  description = "Existing service account for the metrics-collecting Cloud Run service. If not set, one will be created automatically."
+  type        = string
+  default     = null
+}
+
 variable "otel_collector_image" {
   description = "OTel Collector container image"
   type        = string
