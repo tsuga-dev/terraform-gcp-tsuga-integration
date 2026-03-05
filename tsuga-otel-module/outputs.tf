@@ -5,5 +5,5 @@ output "cloud_run_url" {
 
 output "service_account_email" {
   description = "Service account used by the OTel collector."
-  value       = google_service_account.otel.email
+  value       = local.otel_service_account_email
 }
