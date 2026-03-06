@@ -5,7 +5,7 @@ resource "google_service_account" "otel" {
 }
 
 locals {
-  otel_service_account_email = var.otel_service_account_email != null ? var.otel_service_account_email : google_service_account.otel[0].email
+  otel_service_account_email = var.otel_service_account_email != null ? var.otel_service_account_email : try(google_service_account.otel[0].email, "")
 }
 
 resource "google_project_iam_member" "otel_roles" {
