@@ -58,4 +58,4 @@ See the `examples/` folder.
 
 ## Security
 
-Note that for convenience, the Tsuga API key is passed in Terraform state: you can disable this by commenting out the `google_secret_manager_secret_version` resources in `secret.tf` files and create the secret versions separately. Alternatively, you can encrypt Terraform's state.
+Note that for convenience, the Tsuga API key is passed in Terraform state: you can mitigate this by encrypting the Terraform state.
