@@ -1,5 +1,5 @@
-module "tsuga_logs_integration" {
-  source           = "../../tsuga-otel-module"
+module "tsuga_full_integration" {
+  source           = "../.."
   project_id       = var.project_id
   region           = var.region
   prefix           = var.prefix
@@ -7,8 +7,9 @@ module "tsuga_logs_integration" {
   tsuga_intake_url = var.tsuga_intake_url
 
   enable_logs    = true
-  enable_metrics = false
+  enable_metrics = true
 
+  collection_interval  = var.collection_interval
   min_instances        = var.min_instances
   max_instances        = var.max_instances
   cpu_always_allocated = var.cpu_always_allocated

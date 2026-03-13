@@ -1,5 +1,5 @@
 module "tsuga_metrics_integration" {
-  source           = "../../tsuga-otel-module"
+  source           = "../.."
   project_id       = var.project_id
   region           = var.region
   prefix           = var.prefix
