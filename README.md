@@ -1,5 +1,7 @@
 # Telemetry Collection Integration - Google Cloud Platform to Tsuga
 
+This module creates an OTel collector running on Google Cloud Run to collect logs and/or metrics from your GCP account. It also creates a Pub/Sub topic and subscription if you set it to collect logs.
+
 ## Prerequisites
 
 - Download `gcloud` CLI.
@@ -10,7 +12,24 @@
 
 ## Usage
 
-The `tsuga-otel-module` folder contains our OTel Tsuga terraform module for logs and/or metrics ingestion. You can configure the module to collect:
+Use the module from your own Terraform code and pin it to a published module version:
+
+```hcl
+module "tsuga_ingestion" {
+  source  = "tsuga-dev/tsuga-ingestion/google"
+  version = "<version>"
+
+  project_id       = var.project_id
+  region           = var.region
+  tsuga_api_key    = var.tsuga_api_key
+  tsuga_intake_url = var.tsuga_intake_url
+
+  enable_logs    = true
+  enable_metrics = true
+}
+```
+
+You can configure the module to collect:
 
 - **Logs only** - Set `enable_logs = true` and `enable_metrics = false`
 - **Metrics only** - Set `enable_logs = false` and `enable_metrics = true`
@@ -35,38 +54,7 @@ The `tsuga-otel-module` folder contains our OTel Tsuga terraform module for logs
 
 ## Examples
 
-### Logs Only
-
-```bash
-cd stacks/logs-only
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your values
-terraform init
-terraform plan
-terraform apply
-```
-
-### Metrics Only
-
-```bash
-cd stacks/metrics-only
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your values
-terraform init
-terraform plan
-terraform apply
-```
-
-### Both Logs and Metrics
-
-```bash
-cd stacks/logs-and-metrics
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your values
-terraform init
-terraform plan
-terraform apply
-```
+See the `examples/` folder.
 
 ## Security
 
