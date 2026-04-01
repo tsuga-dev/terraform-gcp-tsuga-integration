@@ -4,6 +4,5 @@ prefix           = "tsuga"
 tsuga_api_key    = "your-tsuga-api-key"
 tsuga_intake_url = "https://intake.tsuga.io/v1/otlp"
 
-min_instances        = 1
-max_instances        = 10
-cpu_always_allocated = true
+logs_min_instances = 1
+logs_max_instances = 10

@@ -25,20 +25,15 @@ variable "tsuga_intake_url" {
   type        = string
 }
 
-variable "min_instances" {
-  description = "Minimum number of Cloud Run instances"
+variable "logs_min_instances" {
+  description = "Minimum number of logs collector instances"
   type        = number
   default     = 1
 }
 
-variable "max_instances" {
-  description = "Maximum number of Cloud Run instances"
+variable "logs_max_instances" {
+  description = "Maximum number of logs collector instances. null means no limit."
   type        = number
   default     = 10
 }
 
-variable "cpu_always_allocated" {
-  description = "If true, CPU remains allocated when the container is idle"
-  type        = bool
-  default     = true
-}
