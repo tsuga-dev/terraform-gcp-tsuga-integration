@@ -9,7 +9,7 @@ variable "region" {
 }
 
 variable "prefix" {
-  description = "Base name for Cloud Run service and Secret."
+  description = "Base name for Cloud Run services and Secrets."
   type        = string
   default     = "tsuga"
 }
@@ -43,28 +43,29 @@ variable "enable_metrics" {
   default     = true
 }
 
-variable "min_instances" {
-  description = "Minimum number of Cloud Run instances to keep warm."
+variable "logs_min_instances" {
+  description = "Minimum number of logs collector instances to keep warm."
   type        = number
   default     = 1
 }
 
-variable "max_instances" {
-  description = "Maximum number of Cloud Run instances to allow."
+variable "logs_max_instances" {
+  description = "Maximum number of logs collector instances. The metrics service always runs as a single instance regardless of this setting."
   type        = number
   default     = 10
-}
-
-variable "cpu_always_allocated" {
-  description = "If true, CPU remains allocated when the container is idle (no throttling)."
-  type        = bool
-  default     = true
+  nullable    = true
 }
 
 variable "otel_service_account_email" {
   description = "Existing service account for the metrics-collecting Cloud Run service. If not set, one will be created automatically."
   type        = string
   default     = null
+}
+
+variable "pubsub_ack_deadline_seconds" {
+  description = "Pub/Sub acknowledgement deadline in seconds. Must be between 10 and 600."
+  type        = number
+  default     = 60
 }
 
 variable "otel_collector_image" {

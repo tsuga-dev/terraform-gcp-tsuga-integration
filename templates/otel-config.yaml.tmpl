@@ -11,7 +11,7 @@ receivers:
   googlecloudpubsub:
     project: ${project_id}
     subscription: ${subscription}
-    encoding: googlecloudlogentry
+    encoding: googlecloudlogentry_encoding
 %{ endif ~}
 %{ if enable_metrics ~}
   googlecloudmonitoring:
@@ -87,3 +87,30 @@ service:
   telemetry:
     logs:
       level: debug
+      encoding: json
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                headers:
+                  Authorization: Bearer $${env:TSUGA_API_KEY}
+                endpoint: ${tsuga_intake_url}/v1/logs
+    metrics:
+      readers:
+        - periodic:
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                headers:
+                  Authorization: Bearer $${env:TSUGA_API_KEY}
+                endpoint: ${tsuga_intake_url}/v1/metrics
+    traces:
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                headers:
+                  Authorization: Bearer $${env:TSUGA_API_KEY}
+                endpoint: ${tsuga_intake_url}/v1/traces

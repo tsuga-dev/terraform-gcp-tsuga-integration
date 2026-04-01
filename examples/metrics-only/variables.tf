@@ -31,20 +31,3 @@ variable "collection_interval" {
   default     = "300s"
 }
 
-variable "min_instances" {
-  description = "Minimum number of Cloud Run instances"
-  type        = number
-  default     = 1
-}
-
-variable "max_instances" {
-  description = "Maximum number of Cloud Run instances"
-  type        = number
-  default     = 10
-}
-
-variable "cpu_always_allocated" {
-  description = "If true, CPU remains allocated when the container is idle"
-  type        = bool
-  default     = true
-}

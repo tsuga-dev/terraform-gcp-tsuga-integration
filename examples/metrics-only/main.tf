@@ -9,8 +9,5 @@ module "tsuga_metrics_integration" {
   enable_logs    = false
   enable_metrics = true
 
-  collection_interval  = var.collection_interval
-  min_instances        = var.min_instances
-  max_instances        = var.max_instances
-  cpu_always_allocated = var.cpu_always_allocated
+  collection_interval = var.collection_interval
 }

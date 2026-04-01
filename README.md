@@ -1,6 +1,9 @@
 # Telemetry Collection Integration - Google Cloud Platform to Tsuga
 
-This module creates an OTel collector running on Google Cloud Run to collect logs and/or metrics from your GCP account. It also creates a Pub/Sub topic and subscription if you set it to collect logs.
+This module deploys two OTel collectors on Google Cloud Run to collect logs and/or metrics from your GCP account:
+
+- **Logs service** - pulls from a Pub/Sub subscription and scales horizontally based on CPU load. Also creates the Pub/Sub topic, subscription, and log sink.
+- **Metrics service** - polls GCP Cloud Monitoring on a configurable interval. Pinned to a single instance to prevent duplicate metric collection.
 
 ## Prerequisites
 
@@ -37,20 +40,29 @@ You can configure the module to collect:
 
 ### Configuration Variables
 
-| Variable               | Description                                     | Type   | Default                                        | Required |
-| ---------------------- | ----------------------------------------------- | ------ | ---------------------------------------------- | -------- |
-| `project_id`           | GCP project ID where the collector runs         | string | -                                              | yes      |
-| `region`               | GCP region for Cloud Run                        | string | -                                              | yes      |
-| `tsuga_api_key`        | Tsuga API Key for integration                   | string | -                                              | yes      |
-| `tsuga_intake_url`     | Tsuga OTLP/HTTP ingestion endpoint              | string | -                                              | yes      |
-| `prefix`               | Base name for Cloud Run service and Secret      | string | "tsuga"                                        | no       |
-| `collection_interval`  | How often to pull metrics from Cloud Monitoring | string | "300s"                                         | no       |
-| `enable_logs`          | Enable log collection from GCP to Tsuga         | bool   | true                                           | no       |
-| `enable_metrics`       | Enable metrics collection from GCP to Tsuga     | bool   | true                                           | no       |
-| `min_instances`        | Minimum number of Cloud Run instances           | number | 1                                              | no       |
-| `max_instances`        | Maximum number of Cloud Run instances           | number | 10                                             | no       |
-| `cpu_always_allocated` | Keep CPU allocated when container is idle       | bool   | true                                           | no       |
-| `otel_collector_image` | OTel Collector container image                  | string | "otel/opentelemetry-collector-contrib:0.145.0" | no       |
+| Variable                      | Description                                                                                      | Type   | Default                                        | Required |
+| ----------------------------- | ------------------------------------------------------------------------------------------------ | ------ | ---------------------------------------------- | -------- |
+| `project_id`                  | GCP project ID where the collectors run                                                          | string | -                                              | yes      |
+| `region`                      | GCP region for Cloud Run                                                                         | string | -                                              | yes      |
+| `tsuga_api_key`               | Tsuga API Key for integration                                                                    | string | -                                              | yes      |
+| `tsuga_intake_url`            | Tsuga OTLP/HTTP ingestion endpoint                                                               | string | -                                              | yes      |
+| `prefix`                      | Base name for Cloud Run services and Secrets                                                     | string | "tsuga"                                        | no       |
+| `enable_logs`                 | Enable log collection from GCP to Tsuga                                                          | bool   | true                                           | no       |
+| `enable_metrics`              | Enable metrics collection from GCP to Tsuga                                                      | bool   | true                                           | no       |
+| `collection_interval`         | How often to pull metrics from Cloud Monitoring                                                  | string | "300s"                                         | no       |
+| `logs_min_instances`          | Minimum number of logs collector instances to keep warm                                          | number | 1                                              | no       |
+| `logs_max_instances`          | Maximum number of logs collector instances. The metrics service is always fixed at 1 instance.   | number | 10                                             | no       |
+| `pubsub_ack_deadline_seconds` | Pub/Sub ack deadline in seconds (10–600). Increase if messages are redelivered under heavy load. | number | 60                                             | no       |
+| `otel_service_account_email`  | Existing service account email for the collectors. If unset, one is created automatically.      | string | null                                           | no       |
+| `otel_collector_image`        | OTel Collector container image                                                                   | string | "otel/opentelemetry-collector-contrib:0.145.0" | no       |
+
+### Outputs
+
+| Output                  | Description                              |
+| ----------------------- | ---------------------------------------- |
+| `logs_service_url`      | URL of the Cloud Run logs service        |
+| `metrics_service_url`   | URL of the Cloud Run metrics service     |
+| `service_account_email` | Service account used by both collectors  |
 
 ## Examples
 

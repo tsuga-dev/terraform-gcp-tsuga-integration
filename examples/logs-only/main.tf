@@ -9,7 +9,6 @@ module "tsuga_logs_integration" {
   enable_logs    = true
   enable_metrics = false
 
-  min_instances        = var.min_instances
-  max_instances        = var.max_instances
-  cpu_always_allocated = var.cpu_always_allocated
+  logs_min_instances   = var.logs_min_instances
+  logs_max_instances   = var.logs_max_instances
 }

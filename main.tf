@@ -1,15 +1,27 @@
 locals {
-  otel_config_rendered = templatefile(
+  otel_config_logs_rendered = var.enable_logs ? templatefile(
     "${path.module}/templates/otel-config.yaml.tmpl",
     {
       project_id          = var.project_id
-      subscription        = var.enable_logs ? "projects/${var.project_id}/subscriptions/${google_pubsub_subscription.logs_sub[0].name}" : ""
+      subscription        = "projects/${var.project_id}/subscriptions/${google_pubsub_subscription.logs_sub[0].name}"
       collection_interval = var.collection_interval
       tsuga_intake_url    = var.tsuga_intake_url
-      enable_logs         = var.enable_logs
-      enable_metrics      = var.enable_metrics
+      enable_logs         = true
+      enable_metrics      = false
     }
-  )
+  ) : null
+
+  otel_config_metrics_rendered = var.enable_metrics ? templatefile(
+    "${path.module}/templates/otel-config.yaml.tmpl",
+    {
+      project_id          = var.project_id
+      subscription        = ""
+      collection_interval = var.collection_interval
+      tsuga_intake_url    = var.tsuga_intake_url
+      enable_logs         = false
+      enable_metrics      = true
+    }
+  ) : null
 }
 
 check "collection_types_validation" {
