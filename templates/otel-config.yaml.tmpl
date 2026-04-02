@@ -12,6 +12,7 @@ receivers:
     project: ${project_id}
     subscription: ${subscription}
     encoding: googlecloudlogentry_encoding
+    ignore_encoding_error: true
 %{ endif ~}
 %{ if enable_metrics ~}
   googlecloudmonitoring:

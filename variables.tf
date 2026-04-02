@@ -65,7 +65,7 @@ variable "otel_service_account_email" {
 variable "pubsub_ack_deadline_seconds" {
   description = "Pub/Sub acknowledgement deadline in seconds. Must be between 10 and 600."
   type        = number
-  default     = 60
+  default     = 120
 }
 
 variable "otel_collector_image" {
