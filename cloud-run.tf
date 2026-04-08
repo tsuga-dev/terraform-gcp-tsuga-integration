@@ -9,6 +9,10 @@ resource "google_cloud_run_v2_service" "otel_logs" {
   location            = var.region
   deletion_protection = false
 
+  # Explicit empty block to prevent spurious diffs on refresh;
+  # GCP returns default values that Terraform would otherwise try to remove.
+  scaling {}
+
   template {
     service_account = local.otel_service_account_email
 
@@ -90,6 +94,10 @@ resource "google_cloud_run_v2_service" "otel_metrics" {
   name                = "${var.prefix}-otel-metrics"
   location            = var.region
   deletion_protection = false
+
+  # Explicit empty block to prevent spurious diffs on refresh;
+  # GCP returns default values that Terraform would otherwise try to remove.
+  scaling {}
 
   template {
     service_account = local.otel_service_account_email
