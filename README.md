@@ -54,7 +54,6 @@ You can configure the module to collect:
 | `logs_max_instances`          | Maximum number of logs collector instances. The metrics service is always fixed at 1 instance.   | number | 10                                             | no       |
 | `pubsub_ack_deadline_seconds` | Pub/Sub ack deadline in seconds (10–600). Increase if messages are redelivered under heavy load. | number | 60                                             | no       |
 | `otel_service_account_email`  | Existing service account email for the collectors. If unset, one is created automatically.      | string | null                                            | no       |
-| `otel_collector_image`        | OTel Collector container image                                                                   | string | "otel/opentelemetry-collector-contrib:0.149.0" | no       |
 
 ### Outputs
 
