@@ -3,7 +3,7 @@ extensions:
     endpoint: "0.0.0.0:13133"
 %{ if enable_logs ~}
   # Required since 0.132.0: enables decoding Cloud Logging entries from Pub/Sub.
-  googlecloudlogentry_encoding: {}
+  google_cloud_logentry_encoding: {}
 %{ endif ~}
 
 receivers:
@@ -11,7 +11,7 @@ receivers:
   googlecloudpubsub:
     project: ${project_id}
     subscription: ${subscription}
-    encoding: googlecloudlogentry_encoding
+    encoding: google_cloud_logentry_encoding
     ignore_encoding_error: true
 %{ endif ~}
 %{ if enable_metrics ~}
@@ -114,7 +114,7 @@ exporters:
       queue_size: 4096
 
 service:
-  extensions: [health_check%{ if enable_logs ~}, googlecloudlogentry_encoding%{ endif ~}]
+  extensions: [health_check%{ if enable_logs ~}, google_cloud_logentry_encoding%{ endif ~}]
   pipelines:
 %{ if enable_logs ~}
     logs:
