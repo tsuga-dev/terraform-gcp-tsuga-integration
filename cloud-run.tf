@@ -1,3 +1,7 @@
+locals {
+  otel_collector_image = "otel/opentelemetry-collector-contrib:0.150.0"
+}
+
 # Logs and metrics are split into separate services because they have opposite scaling needs:
 # the logs service scales horizontally to absorb Pub/Sub backlog, while the metrics service
 # must stay at exactly one instance to prevent every replica from independently polling
@@ -22,7 +26,7 @@ resource "google_cloud_run_v2_service" "otel_logs" {
     }
 
     containers {
-      image = var.otel_collector_image
+      image = local.otel_collector_image
       args  = ["--config=file:/etc/otel/config.yaml"]
 
       env {
@@ -109,7 +113,7 @@ resource "google_cloud_run_v2_service" "otel_metrics" {
     }
 
     containers {
-      image = var.otel_collector_image
+      image = local.otel_collector_image
       args  = ["--config=file:/etc/otel/config.yaml"]
 
       env {

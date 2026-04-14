@@ -9,6 +9,6 @@ module "tsuga_logs_integration" {
   enable_logs    = true
   enable_metrics = false
 
-  logs_min_instances   = var.logs_min_instances
-  logs_max_instances   = var.logs_max_instances
+  logs_min_instances = var.logs_min_instances
+  logs_max_instances = var.logs_max_instances
 }

@@ -9,7 +9,7 @@ module "tsuga_full_integration" {
   enable_logs    = true
   enable_metrics = true
 
-  collection_interval  = var.collection_interval
-  logs_min_instances   = var.logs_min_instances
-  logs_max_instances   = var.logs_max_instances
+  collection_interval = var.collection_interval
+  logs_min_instances  = var.logs_min_instances
+  logs_max_instances  = var.logs_max_instances
 }
