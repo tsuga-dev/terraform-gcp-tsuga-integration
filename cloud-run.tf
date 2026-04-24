@@ -1,5 +1,5 @@
 locals {
-  otel_collector_image = "otel/opentelemetry-collector-contrib:0.150.0"
+  otel_collector_image = "otel/opentelemetry-collector-contrib:0.150.1"
 }
 
 # Logs and metrics are split into separate services because they have opposite scaling needs:
