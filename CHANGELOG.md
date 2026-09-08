@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-09-07
+
+### Added
+
+- `vpc_access` to place the collectors on a VPC network/subnetwork using Direct VPC egress.
+  With the default `ALL_TRAFFIC` egress mode, all outbound traffic becomes subject to the
+  VPC's routes and firewall rules, so you can restrict what the collectors can reach (e.g.
+  an FQDN egress allowlist for the Tsuga intake domain). Optional `tags` apply network tags
+  for firewall targeting. Unset, behavior is unchanged. See `examples/vpc-egress`.
+
 ## [3.0.0] - 2026-09-04
 
 The Tsuga API key is no longer stored in the Terraform state or plan files.
