@@ -104,3 +104,32 @@ variable "resource_attributes" {
   default     = {}
   nullable    = false
 }
+
+variable "vpc_access" {
+  description = "Routes the collectors' egress through a VPC with Direct VPC egress. Set `network` and/or `subnetwork` (at least one). If you set only `network`, Cloud Run will assume the value of `subnetwork` to be the same. If you set only `subnetwork`, Cloud Run will look up which VPC owns that subnet. `egress` defaults to ALL_TRAFFIC so all outbound traffic is subject to the VPC's routes and firewall rules; PRIVATE_RANGES_ONLY sends only RFC 1918 traffic through the VPC. `tags` applies network tags to the instances for firewall targeting. Defaults to null: the default serverless egress, not routed through any VPC."
+  type = object({
+    network    = optional(string)
+    subnetwork = optional(string)
+    tags       = optional(list(string))
+    egress     = optional(string, "ALL_TRAFFIC")
+  })
+  default = null
+
+  validation {
+    condition     = var.vpc_access == null ? true : (var.vpc_access.network != null || var.vpc_access.subnetwork != null)
+    error_message = "vpc_access requires at least one of network or subnetwork."
+  }
+
+  validation {
+    condition = var.vpc_access == null ? true : alltrue([
+      for value in [var.vpc_access.network, var.vpc_access.subnetwork] :
+      trimspace(value) != "" if value != null
+    ])
+    error_message = "vpc_access.network and vpc_access.subnetwork must not be blank when set; omit them instead."
+  }
+
+  validation {
+    condition     = var.vpc_access == null ? true : contains(["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"], var.vpc_access.egress)
+    error_message = "vpc_access.egress must be \"ALL_TRAFFIC\" or \"PRIVATE_RANGES_ONLY\"."
+  }
+}

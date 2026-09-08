@@ -61,6 +61,38 @@ Method 2: You can also simply pass your ingestion key to this module through a
 write-only value, rotation must be done explicitly: set the new key in `tsuga_api_key` and increment
 `tsuga_api_key_version`.
 
+### Restricting collector egress
+
+By default the collectors use Cloud Run's direct serverless egress and can reach any
+internet destination. To constrain what they can reach, set `vpc_access` to place them on a
+VPC of yours using [Direct VPC egress](https://cloud.google.com/run/docs/configuring/vpc-direct-vpc):
+
+```hcl
+  vpc_access = {
+    network    = "your-network"
+    subnetwork = "your-subnetwork"  # must be in the Cloud Run region
+    tags       = ["tsuga-collector"] # optional, for firewall targeting
+  }
+```
+
+With the default `ALL_TRAFFIC` egress mode, every outbound packet is subject to your VPC's
+routes and firewall rules. The module creates no network resources; the restriction itself
+is yours to define — typically a deny-all egress firewall policy plus an allowlist, using
+[FQDN objects](https://cloud.google.com/firewall/docs/about-fqdn-objects) to allow only the
+Tsuga intake domain, or a [Secure Web Proxy](https://cloud.google.com/secure-web-proxy/docs/overview)
+for the strictest posture.
+
+Two things to keep in mind:
+
+- The collectors also call Google APIs (Pub/Sub, Cloud Monitoring). With `ALL_TRAFFIC`,
+  those calls go through your VPC too, so the subnetwork needs
+  [Private Google Access](https://cloud.google.com/vpc/docs/private-google-access) (or your
+  egress allowlist must include `*.googleapis.com`).
+- On a Shared VPC subnet, the Cloud Run service agent needs `roles/compute.networkUser` on
+  the subnet.
+
+See `examples/vpc-egress`.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -95,6 +127,7 @@ write-only value, rotation must be done explicitly: set the new key in `tsuga_ap
 | <a name="input_tsuga_api_key_secret_id"></a> [tsuga\_api\_key\_secret\_id](#input\_tsuga\_api\_key\_secret\_id) | ID of an existing Secret Manager secret holding the Tsuga API key, in the form `projects/<project>/secrets/<secret-id>`. When set, the key never passes through Terraform: the module manages neither the secret nor its versions, and only grants the collector service account access to it. Mutually exclusive with `tsuga_api_key`. | `string` | `null` | no |
 | <a name="input_tsuga_api_key_version"></a> [tsuga\_api\_key\_version](#input\_tsuga\_api\_key\_version) | Increment this whenever `tsuga_api_key` changes. Terraform cannot diff the write-only key value, so this number is what triggers writing a new secret version. | `number` | `1` | no |
 | <a name="input_tsuga_intake_url"></a> [tsuga\_intake\_url](#input\_tsuga\_intake\_url) | TSUGA OTLP/HTTP ingestion endpoint. | `string` | n/a | yes |
+| <a name="input_vpc_access"></a> [vpc\_access](#input\_vpc\_access) | Routes the collectors' egress through a VPC with Direct VPC egress. Set `network` and/or `subnetwork` (at least one). If you set only `network`, Cloud Run will assume the value of `subnetwork` to be the same. If you set only `subnetwork`, Cloud Run will look up which VPC owns that subnet. `egress` defaults to ALL\_TRAFFIC so all outbound traffic is subject to the VPC's routes and firewall rules; PRIVATE\_RANGES\_ONLY sends only RFC 1918 traffic through the VPC. `tags` applies network tags to the instances for firewall targeting. Defaults to null: the default serverless egress, not routed through any VPC. | <pre>object({<br/>    network    = optional(string)<br/>    subnetwork = optional(string)<br/>    tags       = optional(list(string))<br/>    egress     = optional(string, "ALL_TRAFFIC")<br/>  })</pre> | `null` | no |
 
 ## Outputs
 
